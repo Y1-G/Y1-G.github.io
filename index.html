@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buku Mikro: Pemroses Laporan Keuangan EMKM</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@400;600&display=swap">
+<style>
+:root{--paper:#e6eee8;--sheet:#fbfdfb;--ink:#14293f;--rule:#bccfc2;--mute:#5a6e65;--margin:#c4513a;--ok:#1d7549;--bad:#b3261e;--sans:"IBM Plex Sans",system-ui,sans-serif;--serif:"IBM Plex Serif",Georgia,serif}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:15px/1.5 var(--sans)}
+header{background:var(--ink);color:#e9f1ec;padding:14px 20px 0}
+header h1{font:600 18px var(--serif);margin:0}
+header p{margin:2px 0 10px;font-size:13px;opacity:.75}
+nav{display:flex;gap:2px;overflow-x:auto}
+nav button{background:none;border:0;color:#b9cbc1;padding:9px 14px;font:500 14px var(--sans);cursor:pointer;border-radius:6px 6px 0 0;white-space:nowrap}
+nav button.on{background:var(--paper);color:var(--ink)}
+nav button:hover:not(.on){color:#fff}
+main{max-width:1000px;margin:20px auto;padding:0 14px 60px}
+.sheet{background:var(--sheet);border:1px solid var(--rule);border-left:3px solid var(--margin);padding:20px 24px;margin-bottom:18px}
+h2{font:600 19px var(--serif);margin:0 0 10px}
+h4{font:600 15px var(--sans);margin:18px 0 6px}
+.mute{color:var(--mute);font-size:13px;margin:0 0 12px}
+label{display:flex;flex-direction:column;font-size:13px;color:var(--mute);gap:3px}
+input,select,textarea{font:inherit;color:var(--ink);padding:7px 9px;border:1px solid var(--rule);border-radius:4px;background:#fff;min-width:0}
+textarea{width:100%;min-height:90px;font-family:var(--serif)}
+:focus-visible{outline:2px solid #2a6fb0;outline-offset:1px}
+.r{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:12px;align-items:flex-end}
+.r label{flex:1 1 150px}.r label.w{flex:3 1 260px}
+.chk{flex-direction:row;align-items:center;gap:6px;flex:0 0 auto!important;padding-bottom:9px}
+button.p,form button:not(.x){background:var(--ink);color:#fff;border:0;border-radius:4px;padding:8px 14px;font:500 14px var(--sans);cursor:pointer}
+button.o{background:none;color:var(--ink);border:1px solid var(--ink);border-radius:4px;padding:7px 12px;font:500 13px var(--sans);cursor:pointer;margin:0 6px 6px 0}
+button.x{background:none;border:0;color:var(--mute);cursor:pointer;font-size:17px}
+button.x:hover{color:var(--bad)}
+.tb{overflow-x:auto}
+table{border-collapse:collapse;width:100%}
+th{text-align:left;font-weight:600;font-size:13px;color:var(--mute);border-bottom:2px solid var(--ink);padding:5px 8px}
+td{padding:4px 8px;border-bottom:1px solid var(--rule);vertical-align:top}
+.n,th.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.c{text-align:center;color:var(--mute);width:70px}
+td.cr{padding-left:32px}
+tr.top td{border-top:1px solid var(--mute)}
+tr.ket td{color:var(--mute);font-size:13px;border-bottom:0}
+.ok{color:var(--ok)}.bad{color:var(--bad)}
+.chips button{background:#fff;border:1px solid var(--rule);border-radius:14px;padding:3px 12px;margin:0 4px 10px 0;cursor:pointer;font:13px var(--sans)}
+.chips button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.doc{font-family:var(--serif)}
+.doc h2{text-align:center;margin:0}
+.doc h3{text-align:center;font:400 16px var(--serif);margin:2px 0}
+.doc .sub{text-align:center;color:var(--mute);margin:0 0 14px;font-size:14px}
+.s td{border-bottom:0;padding:2px 8px}
+.s .h td{font-weight:600;padding-top:10px}
+.s .i td:first-child{padding-left:26px}
+.s .t td{border-top:1px solid var(--ink);font-weight:600}
+.s .g td{border-top:1px solid var(--ink);border-bottom:3px double var(--ink);font-weight:600}
+.warn{background:#fdeceb;border-left:3px solid var(--bad);padding:8px 12px;margin-top:12px;font:14px var(--sans)}
+.note{font-family:var(--serif);font-size:14px}
+.note table td{padding:2px 8px;border-bottom:0}
+@media print{header,.noprint{display:none}body,main{background:#fff;margin:0;padding:0;max-width:none}.sheet{border:0;padding:0 0 14px}}
+</style>
+</head>
+<body>
+<header>
+  <h1 id="nm"></h1>
+  <p>Pemroses laporan keuangan berbasis SAK EMKM: jasa dan dagang, data tersimpan di peramban</p>
+  <nav id="nav"></nav>
+</header>
+<main id="main"></main>
+
+<script>
+/* ===== Data dasar ===== */
+const KEY = 'buku-mikro-v1';
+const TJ = [['Jasa Periklanan','Pendapatan Jasa Periklanan'],['Jasa Konsultan','Pendapatan Jasa Konsultasi'],['Bengkel dan Servis','Pendapatan Jasa Servis'],['Kursus dan Pendidikan','Pendapatan Uang Kursus'],['Klinik dan Kesehatan','Pendapatan Jasa Medis']];
+const TD = [['Toko Kelontong','Barang Kelontong'],['Elektronik','Barang Elektronik'],['Pakaian dan Fashion','Pakaian'],['Apotek','Obat-obatan'],['Bahan Bangunan','Bahan Bangunan'],['Suku Cadang Otomotif','Suku Cadang'],['Buku dan ATK','Buku dan ATK'],['Kosmetik','Kosmetik'],['Makanan dan Minuman','Makanan dan Minuman'],['Furnitur','Furnitur']];
+// [kode, nama, hanyaDagang]
+const B = [[101,'Kas'],[112,'Piutang Usaha'],[113,'Piutang Pendapatan'],[120,'INV',1],[126,'Perlengkapan'],[130,'Asuransi Dibayar Dimuka'],[135,'Sewa Dibayar Dimuka'],[140,'PPN Masukan'],[157,'Peralatan'],[158,'Akumulasi Penyusutan-Peralatan'],[159,'Cadangan Kerugian Piutang'],
+[200,'Utang Wesel'],[201,'Utang Usaha'],[209,'Pendapatan Diterima Dimuka'],[212,'Utang Gaji'],[220,'Utang Utilitas'],[230,'Utang Bunga'],[240,'PPN Keluaran'],
+[311,'Modal Disetor'],[320,'Laba Ditahan'],[332,'Prive/Dividen'],[400,'REV'],[500,'Harga Pokok Penjualan',1],
+[631,'Beban Perlengkapan'],[711,'Beban Penyusutan'],[722,'Beban Asuransi'],[726,'Beban Gaji'],[729,'Beban Sewa'],[732,'Beban Utilitas'],[741,'Beban Kerugian Piutang'],[905,'Beban Bunga']];
+// 10 jenis penyesuaian: [label, debit, kredit]
+const ADJS = [['Perlengkapan terpakai',631,126],['Amortisasi asuransi dibayar dimuka',722,130],['Amortisasi sewa dibayar dimuka',729,135],['Penyusutan peralatan',711,158],['Beban gaji yang masih harus dibayar',726,212],['Beban utilitas yang masih harus dibayar',732,220],['Beban bunga yang masih harus dibayar',905,230],['Pendapatan diterima dimuka yang telah direalisasi',209,400],['Pendapatan yang masih harus diterima',113,400],['Penyisihan kerugian piutang',741,159]];
+const TABS = [['profil','Profil dan Akun'],['ju','Jurnal Umum'],['jual','Penjualan'],['beli','Pembelian'],['adj','Penyesuaian'],['bb','Buku Besar'],['ns','Neraca Saldo'],['lr','Laba Rugi'],['lp','Posisi Keuangan'],['calk','CALK']];
+const NT = ['Kas','Piutang (neto)','Persediaan','Perlengkapan dan biaya dibayar dimuka','Aset tetap (neto)','Liabilitas','Ekuitas','Pendapatan','Harga pokok dan beban'];
+const PRE = {JU:'JU',SAL:'FJ',PUR:'FB',ADJ:'ADJ'};
+const YN = {JU:'Umum',SAL:'Penjualan',PUR:'Pembelian',ADJ:'Penyesuaian'};
+
+/* ===== Util ===== */
+const $ = s => document.querySelector(s);
+const R = n => { n = Math.round(n); return n === 0 ? '–' : (n < 0 ? '(' : '') + Math.abs(n).toLocaleString('id-ID') + (n < 0 ? ')' : ''); };
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fd = d => new Date(d + 'T00:00').toLocaleDateString('id-ID', {day:'2-digit', month:'short', year:'numeric'});
+const fdl = d => new Date(d + 'T00:00').toLocaleDateString('id-ID', {day:'numeric', month:'long', year:'numeric'});
+const today = () => new Date().toISOString().slice(0, 10);
+const isD = () => S.p.jenis === 'dagang';
+
+function mkCoa(jn, i) {
+  const t = (jn === 'jasa' ? TJ : TD)[i] || (jn === 'jasa' ? TJ : TD)[0];
+  return B.filter(a => jn === 'dagang' || !a[2]).map(a => [a[0], a[1] === 'INV' ? 'Persediaan ' + t[1] : a[1] === 'REV' ? (jn === 'jasa' ? t[1] : 'Penjualan ' + t[1]) : a[1]]);
+}
+function fresh() {
+  return {p:{nama:'Nama Usaha Anda', jenis:'jasa', tpl:0, akhir:new Date().getFullYear() + '-12-31', alamat:'', k1:'', k2:''}, coa:mkCoa('jasa', 0), j:[], n:{}};
+}
+function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch (e) { return null; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} }
+
+let S = load() || fresh(), tab = 'profil', filt = '';
+
+/* ===== Mesin akuntansi ===== */
+const nm = k => (S.coa.find(a => a[0] == k) || [0, 'Akun ' + k])[1];
+const dn = k => k < 200 || k >= 500;               // saldo normal debit
+function raw(k, m) {                                 // debit - kredit
+  let s = 0;
+  S.j.forEach(j => {
+    if ((m === 'pre' && j.y === 'ADJ') || (m === 'adj' && j.y !== 'ADJ')) return;
+    j.l.forEach(l => { if (l[0] == k) s += l[1] - l[2]; });
+  });
+  return s;
+}
+const bal = (k, m = 'all') => dn(k) ? raw(k, m) : -raw(k, m);
+const acc = (a, b) => S.coa.filter(x => x[0] >= a && x[0] <= b).map(x => [x[0], x[1], bal(x[0])]).filter(x => Math.round(x[2]));
+const sum = l => l.reduce((s, x) => s + x[2], 0);
+function noteNo(k) { return k == 101 ? 1 : [112,113,159].includes(k) ? 2 : k == 120 ? 3 : [126,130,135,140].includes(k) ? 4 : [157,158].includes(k) ? 5 : k < 300 && k >= 200 ? 6 : k < 400 && k >= 300 ? 7 : k < 500 && k >= 400 ? 8 : 9; }
+function LR() {
+  const rv = acc(400,499), hp = acc(500,599), ox = acc(600,799), ot = acc(900,999);
+  const tr = sum(rv), th = sum(hp), to = sum(ox), tt = sum(ot);
+  return {rv, hp, ox, ot, tr, th, to, tt, lk:tr - th, lu:tr - th - to, ln:tr - th - to - tt};
+}
+
+/* ===== Tampilan ===== */
+const opts = () => S.coa.map(a => `<option value="${a[0]}">${a[0]} ${esc(a[1])}`).join('');
+const dateField = () => `<label>Tanggal<input type="date" name="t" value="${today() <= S.p.akhir ? today() : S.p.akhir}" required></label>`;
+
+function render() {
+  $('#nm').textContent = S.p.nama;
+  document.title = S.p.nama + ' | Buku Mikro';
+  $('#nav').innerHTML = TABS.map(t => `<button class="${t[0] === tab ? 'on' : ''}" onclick="go('${t[0]}')">${t[1]}</button>`).join('');
+  $('#main').innerHTML = V[tab]();
+  if (tab === 'ju') { addL(); addL(); }
+}
+function go(t) { tab = t; filt = ''; render(); scrollTo(0, 0); }
+
+/* Daftar jurnal */
+function lst(types) {
+  const L = S.j.filter(j => types.includes(j.y) && (!filt || j.y === filt)).sort((a, b) => a.t.localeCompare(b.t) || a.id.localeCompare(b.id));
+  if (!L.length) return '<p class="mute">Belum ada transaksi. Isi formulir di atas untuk mencatat transaksi pertama.</p>';
+  const chips = types.length > 1 ? `<div class="chips">${[['', 'Semua'], ...types.map(y => [y, YN[y]])].map(c => `<button class="${filt === c[0] ? 'on' : ''}" onclick="filt='${c[0]}';render()">${c[1]}</button>`).join('')}</div>` : '';
+  return chips + `<div class="tb"><table><thead><tr><th>Tanggal<th>Ref<th>Akun<th class="n">Debit<th class="n">Kredit<th></thead>` + L.map(j =>
+    j.l.map((l, i) => `<tr class="${i ? '' : 'top'}"><td>${i ? '' : fd(j.t)}<td>${i ? '' : j.id}<td class="${l[2] ? 'cr' : ''}">${l[0]} ${esc(nm(l[0]))}<td class="n">${l[1] ? R(l[1]) : ''}<td class="n">${l[2] ? R(l[2]) : ''}<td>${i ? '' : `<button class="x" title="Hapus" aria-label="Hapus ${j.id}" onclick="del('${j.id}')">×</button>`}`).join('') +
+    `<tr class="ket"><td><td><td colspan="3">${esc(j.ket)}<td>`).join('') + '</table></div>';
+}
+function del(id) { if (confirm('Hapus jurnal ' + id + '?')) { S.j = S.j.filter(j => j.id !== id); save(); render(); } }
+
+/* Pencatatan */
+function sub(y, f) {
+  const v = f.elements, num = n => v[n] ? +v[n].value || 0 : 0, L = [];
+  if (y === 'JU') document.querySelectorAll('#jl tbody tr').forEach(r => {
+    const a = +r.querySelector('select').value, d = +r.querySelector('.d').value || 0, k = +r.querySelector('.k').value || 0;
+    if (a && (d || k)) L.push([a, d, k]);
+  });
+  if (y === 'SAL') {
+    const q = isD() ? num('q') : 1, dpp = q * num('p'), ppn = v.ppn.checked ? Math.round(dpp * .11) : 0;
+    L.push([v.pay.value === 'K' ? 112 : 101, dpp + ppn, 0], [400, 0, dpp]);
+    if (ppn) L.push([240, 0, ppn]);
+    if (isD()) { const h = q * num('h'); L.push([500, h, 0], [120, 0, h]); }
+  }
+  if (y === 'PUR') {
+    const dpp = num('q') * num('p'), ppn = v.ppn.checked ? Math.round(dpp * .11) : 0;
+    L.push([+v.o.value, dpp, 0]);
+    if (ppn) L.push([140, ppn, 0]);
+    L.push([v.pay.value === 'K' ? 201 : 101, 0, dpp + ppn]);
+  }
+  if (y === 'ADJ') { const a = ADJS[v.a.value], m = num('m'); L.push([a[1], m, 0], [a[2], 0, m]); }
+  const D = L.reduce((s, l) => s + l[1], 0), K = L.reduce((s, l) => s + l[2], 0);
+  if (L.length < 2 || !D || Math.round(D) !== Math.round(K)) { alert('Jurnal belum seimbang atau nilainya kosong. Periksa debit dan kredit.'); return false; }
+  const c = S.n[y] = (S.n[y] || 0) + 1;
+  const ket = v.ket.value || (y === 'ADJ' ? ADJS[v.a.value][0] : '');
+  S.j.push({id:PRE[y] + '-' + String(c).padStart(3, '0'), t:v.t.value, ket, y, l:L});
+  save(); render(); return false;
+}
+function addL() {
+  const r = document.createElement('tr');
+  r.innerHTML = `<td><select aria-label="Akun"><option value="">Pilih akun${opts()}</select><td><input type="number" min="0" step="any" class="d" aria-label="Debit" oninput="chk()"><td><input type="number" min="0" step="any" class="k" aria-label="Kredit" oninput="chk()"><td><button type="button" class="x" onclick="this.closest('tr').remove();chk()">×</button>`;
+  $('#jl tbody').append(r);
+}
+function chk() {
+  let d = 0, k = 0;
+  document.querySelectorAll('#jl .d').forEach(e => d += +e.value || 0);
+  document.querySelectorAll('#jl .k').forEach(e => k += +e.value || 0);
+  $('#jb').innerHTML = `Debit ${R(d)}, kredit ${R(k)}: ` + (d === k && d ? '<b class="ok">seimbang</b>' : `<b class="bad">selisih ${R(d - k)}</b>`);
+}
+
+const V = {};
+V.profil = () => {
+  const T = isD() ? TD : TJ, used = k => S.j.some(j => j.l.some(l => l[0] == k));
+  return `<div class="sheet"><h2>Profil usaha</h2>
+  <div class="r"><label class="w">Nama usaha<input value="${esc(S.p.nama)}" onchange="S.p.nama=this.value;save();render()"></label>
+  <label>Akhir periode<input type="date" value="${S.p.akhir}" onchange="S.p.akhir=this.value;save()"></label></div>
+  <div class="r"><label>Jenis usaha<select onchange="setJ(this.value)"><option value="jasa" ${isD() ? '' : 'selected'}>Jasa (5 jenis)<option value="dagang" ${isD() ? 'selected' : ''}>Dagang (10 jenis)</select></label>
+  <label>Bidang usaha<select onchange="setT(+this.value)">${T.map((t, i) => `<option value="${i}" ${i == S.p.tpl ? 'selected' : ''}>${t[0]}`).join('')}</select></label>
+  <label class="w">Alamat<input value="${esc(S.p.alamat)}" onchange="S.p.alamat=this.value;save()"></label></div>
+  <p class="mute">Mengganti bidang usaha hanya mengubah nama akun pendapatan dan persediaan. Jurnal yang sudah ada tetap aman.</p>
+  <button class="o" onclick="demo()">Muat contoh (Yazici Advertising)</button><button class="o" onclick="exp()">Cadangkan JSON</button>
+  <button class="o" onclick="$('#imp').click()">Pulihkan JSON</button><button class="o" onclick="if(confirm('Hapus semua data?')){S=fresh();save();render()}">Mulai baru</button>
+  <input id="imp" type="file" accept=".json" hidden onchange="imp(this.files[0])"></div>
+  <div class="sheet"><h2>Bagan akun</h2>
+  <form class="r" onsubmit="return addA(this)"><label>Kode<input name="k" type="number" required></label><label class="w">Nama akun<input name="n" required></label><button>Tambah akun</button></form>
+  <div class="tb"><table><thead><tr><th>Kode<th>Nama<th></thead>${S.coa.map(a => `<tr><td>${a[0]}<td>${esc(a[1])}<td>${used(a[0]) ? '' : `<button class="x" aria-label="Hapus akun ${a[0]}" onclick="delA(${a[0]})">×</button>`}`).join('')}</table></div>
+  <p class="mute">Kode 1xx aset, 2xx liabilitas, 3xx ekuitas, 4xx pendapatan, 5xx harga pokok, 6xx sampai 9xx beban.</p></div>`;
+};
+function setJ(v) { S.p.jenis = v; S.p.tpl = 0; reCoa(); }
+function setT(i) { S.p.tpl = i; reCoa(); }
+function reCoa() {
+  const cu = S.coa.filter(a => !B.some(b => b[0] == a[0]));
+  S.coa = [...mkCoa(S.p.jenis, S.p.tpl), ...cu].sort((a, b) => a[0] - b[0]);
+  save(); render();
+}
+function addA(f) {
+  const k = +f.k.value;
+  if (S.coa.some(a => a[0] == k)) { alert('Kode akun sudah dipakai.'); return false; }
+  S.coa.push([k, f.n.value]); S.coa.sort((a, b) => a[0] - b[0]); save(); render(); return false;
+}
+function delA(k) { S.coa = S.coa.filter(a => a[0] != k); save(); render(); }
+function exp() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S, null, 1)], {type:'application/json'}));
+  a.download = 'buku-mikro-' + today() + '.json'; a.click();
+}
+function imp(f) {
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => { try { const d = JSON.parse(r.result); if (!d.p || !d.coa || !d.j) throw 0; S = d; save(); render(); } catch (e) { alert('Berkas bukan cadangan Buku Mikro yang valid.'); } };
+  r.readAsText(f);
+}
+
+V.ju = () => `<div class="sheet"><h2>Jurnal umum</h2><p class="mute">Untuk transaksi di luar penjualan dan pembelian, misalnya setoran modal, pembayaran beban, dan prive. Debit harus sama dengan kredit.</p>
+  <form onsubmit="return sub('JU',this)"><div class="r">${dateField()}<label class="w">Keterangan<input name="ket" required></label></div>
+  <table id="jl"><thead><tr><th>Akun<th class="n">Debit<th class="n">Kredit<th></thead><tbody></tbody><tfoot><tr><td id="jb" colspan="4" style="border:0;padding-top:8px"></tfoot></table>
+  <p><button type="button" class="o" onclick="addL()">Tambah baris</button> <button>Simpan jurnal</button></p></form></div>
+  <div class="sheet"><h2>Daftar jurnal</h2>${lst(['JU','SAL','PUR','ADJ'])}</div>`;
+
+V.jual = () => `<div class="sheet"><h2>Penjualan</h2><p class="mute">${isD() ? 'Mencatat penjualan beserta harga pokoknya (metode perpetual).' : 'Mencatat pendapatan jasa.'} PPN dihitung 11% dari nilai penjualan.</p>
+  <form onsubmit="return sub('SAL',this)"><div class="r">${dateField()}<label class="w">Pelanggan dan nomor faktur<input name="ket" required></label></div>
+  <div class="r">${isD() ? '<label>Jumlah barang<input type="number" name="q" min="0" step="any" required></label>' : ''}
+  <label>${isD() ? 'Harga jual per unit' : 'Nilai jasa'}<input type="number" name="p" min="0" step="any" required></label>
+  ${isD() ? '<label>Harga pokok per unit<input type="number" name="h" min="0" step="any" required></label>' : ''}
+  <label>Pembayaran<select name="pay"><option value="T">Tunai<option value="K">Kredit (piutang)</select></label>
+  <label class="chk"><input type="checkbox" name="ppn"> PPN 11%</label></div>
+  <button>Simpan penjualan</button></form></div>
+  <div class="sheet"><h2>Riwayat penjualan</h2>${lst(['SAL'])}</div>`;
+
+V.beli = () => `<div class="sheet"><h2>Pembelian</h2><p class="mute">Pembelian ${isD() ? 'persediaan, ' : ''}perlengkapan, dan peralatan, tunai maupun kredit.</p>
+  <form onsubmit="return sub('PUR',this)"><div class="r">${dateField()}<label class="w">Pemasok dan nomor faktur<input name="ket" required></label></div>
+  <div class="r"><label>Objek pembelian<select name="o">${isD() ? '<option value="120">' + esc(nm(120)) : ''}<option value="126">Perlengkapan<option value="157">Peralatan</select></label>
+  <label>Jumlah<input type="number" name="q" min="0" step="any" value="1" required></label>
+  <label>Harga satuan<input type="number" name="p" min="0" step="any" required></label>
+  <label>Pembayaran<select name="pay"><option value="T">Tunai<option value="K">Kredit (utang usaha)</select></label>
+  <label class="chk"><input type="checkbox" name="ppn"> PPN 11%</label></div>
+  <button>Simpan pembelian</button></form></div>
+  <div class="sheet"><h2>Riwayat pembelian</h2>${lst(['PUR'])}</div>`;
+
+V.adj = () => `<div class="sheet"><h2>Jurnal penyesuaian</h2><p class="mute">Pilih salah satu dari 10 jenis penyesuaian, isi nilainya, dan jurnal dibentuk otomatis.</p>
+  <form onsubmit="return sub('ADJ',this)"><div class="r"><label class="w">Jenis penyesuaian<select name="a" onchange="$('#pv').textContent='Debit '+nmx(ADJS[this.value][1])+', kredit '+nmx(ADJS[this.value][2])">${ADJS.map((a, i) => `<option value="${i}">${i + 1}. ${a[0]}`).join('')}</select></label>
+  <label>Tanggal<input type="date" name="t" value="${S.p.akhir}" required></label><label>Nilai<input type="number" name="m" min="0" step="any" required></label></div>
+  <div class="r"><label class="w">Keterangan (opsional)<input name="ket"></label></div>
+  <p class="mute" id="pv">Debit ${esc(nm(ADJS[0][1]))}, kredit ${esc(nm(ADJS[0][2]))}</p><button>Simpan penyesuaian</button></form></div>
+  <div class="sheet"><h2>Riwayat penyesuaian</h2>${lst(['ADJ'])}</div>`;
+const nmx = k => nm(k);
+
+V.bb = () => {
+  const blocks = S.coa.map(a => {
+    const k = a[0], rows = [];
+    let run = 0;
+    S.j.slice().sort((x, y) => x.t.localeCompare(y.t) || x.id.localeCompare(y.id)).forEach(j => j.l.forEach(l => {
+      if (l[0] != k) return;
+      run += dn(k) ? l[1] - l[2] : l[2] - l[1];
+      rows.push(`<tr><td>${fd(j.t)}<td>${j.id}<td>${esc(j.ket)}<td class="n">${l[1] ? R(l[1]) : ''}<td class="n">${l[2] ? R(l[2]) : ''}<td class="n">${R(run)}`);
+    }));
+    return rows.length ? `<h4>${k} ${esc(a[1])}</h4><div class="tb"><table><thead><tr><th>Tanggal<th>Ref<th>Keterangan<th class="n">Debit<th class="n">Kredit<th class="n">Saldo</thead>${rows.join('')}</table></div>` : '';
+  }).join('');
+  return `<div class="sheet"><h2>Buku besar</h2>${blocks || '<p class="mute">Buku besar terisi otomatis dari jurnal.</p>'}</div>`;
+};
+
+V.ns = () => {
+  const rows = S.coa.map(a => [a[0], a[1], raw(a[0], 'pre'), raw(a[0], 'adj')]).filter(r => Math.round(r[2]) || Math.round(r[3]));
+  const dk = v => `<td class="n">${v > 0 ? R(v) : ''}<td class="n">${v < 0 ? R(-v) : ''}`;
+  const T = [0, 0, 0, 0, 0, 0];
+  rows.forEach(r => { const p = r[2], a = r[3], z = p + a; [[p,0],[a,2],[z,4]].forEach(([v, i]) => { if (v > 0) T[i] += v; else T[i + 1] -= v; }); });
+  const ok = Math.round(T[4]) === Math.round(T[5]);
+  return `<div class="sheet"><h2>Neraca saldo</h2><p class="mute">Per ${fdl(S.p.akhir)}. Kolom penyesuaian hanya memuat jurnal bertipe penyesuaian.</p>
+  <div class="tb"><table><thead><tr><th rowspan="2">Akun<th class="n" colspan="2">Sebelum penyesuaian<th class="n" colspan="2">Penyesuaian<th class="n" colspan="2">Setelah penyesuaian<tr><th class="n">Debit<th class="n">Kredit<th class="n">Debit<th class="n">Kredit<th class="n">Debit<th class="n">Kredit</thead>
+  ${rows.map(r => `<tr><td>${r[0]} ${esc(r[1])}${dk(r[2])}${dk(r[3])}${dk(r[2] + r[3])}`).join('')}
+  <tr style="font-weight:600"><td>Jumlah${T.map(v => `<td class="n">${R(v)}`).join('')}</table></div>
+  <p class="${ok ? 'ok' : 'bad'}"><b>${ok ? 'Neraca saldo seimbang.' : 'Neraca saldo tidak seimbang. Periksa jurnal.'}</b></p>
+  <button class="o noprint" onclick="print()">Cetak atau simpan PDF</button></div>`;
+};
+
+function stm(t, sub, rows) {
+  return `<div class="sheet doc"><h2>${esc(S.p.nama)}</h2><h3>${t}</h3><p class="sub">${sub}</p><div class="tb"><table class="s"><thead><tr><th><th class="c">Catatan<th class="n">Jumlah (Rp)</thead>` +
+    rows.map(r => `<tr class="${r[0]}"><td>${esc(r[1])}<td class="c">${r[3] || ''}<td class="n">${r[2] === undefined ? '' : R(r[2])}`).join('') + '</table></div>';
+}
+const it = l => l.map(x => ['i', x[1], x[2], noteNo(x[0])]);
+const pr = '<p><button class="o noprint" onclick="print()">Cetak atau simpan PDF</button></p></div>';
+
+V.lr = () => {
+  const r = LR();
+  return stm('Laporan Laba Rugi', 'Untuk periode yang berakhir pada ' + fdl(S.p.akhir), [
+    ['h', 'Pendapatan'], ...it(r.rv), ['t', 'Total pendapatan', r.tr],
+    ...(r.hp.length ? [['h', 'Harga pokok penjualan'], ...it(r.hp), ['t', 'Laba kotor', r.lk]] : []),
+    ['h', 'Beban usaha'], ...it(r.ox), ['t', 'Total beban usaha', r.to], ['t', 'Laba usaha', r.lu],
+    ...(r.ot.length ? [['h', 'Beban lain-lain'], ...it(r.ot)] : []), ['g', 'Laba bersih', r.ln]]) + pr;
+};
+
+V.lp = () => {
+  const r = LR(), ca = acc(101,149), fa = acc(150,199), li = acc(200,299);
+  const eq = acc(300,349); // prive (332) otomatis bernilai negatif
+  const ta = sum(ca) + sum(fa), te = sum(eq) + r.ln, tl = sum(li);
+  const ok = Math.round(ta) === Math.round(tl + te);
+  return stm('Laporan Posisi Keuangan', 'Per ' + fdl(S.p.akhir), [
+    ['h', 'Aset lancar'], ...it(ca), ['t', 'Total aset lancar', sum(ca)],
+    ['h', 'Aset tetap'], ...it(fa), ['t', 'Total aset tetap (neto)', sum(fa)], ['g', 'Total aset', ta],
+    ['h', 'Liabilitas'], ...it(li), ['t', 'Total liabilitas', tl],
+    ['h', 'Ekuitas'], ...it(eq), ['i', 'Laba periode berjalan', r.ln, 7], ['t', 'Total ekuitas', te], ['g', 'Total liabilitas dan ekuitas', tl + te]]) +
+    (ok ? '' : `<div class="warn">Aset dan liabilitas ditambah ekuitas berselisih ${R(ta - tl - te)}. Periksa jurnal yang tidak seimbang.</div>`) + pr;
+};
+
+const kb1 = () => `${S.p.nama} adalah usaha ${isD() ? 'dagang' : 'jasa'} di bidang ${(isD() ? TD : TJ)[S.p.tpl][0].toLowerCase()}${S.p.alamat ? ', berkedudukan di ' + S.p.alamat : ''}. Laporan keuangan ini disusun sesuai SAK EMKM (Standar Akuntansi Keuangan Entitas Mikro, Kecil, dan Menengah) dengan dasar akrual, disajikan dalam Rupiah, terdiri atas laporan posisi keuangan, laporan laba rugi, dan catatan atas laporan keuangan.`;
+const kb2 = () => `Pendapatan diakui ketika ${isD() ? 'barang diserahkan kepada pelanggan' : 'jasa telah diserahkan kepada pelanggan'}. ${isD() ? 'Persediaan dicatat dengan metode perpetual sebesar biaya perolehan. ' : ''}Perlengkapan dan biaya dibayar dimuka dibebankan sesuai pemakaiannya. Aset tetap dicatat sebesar harga perolehan dikurangi akumulasi penyusutan dengan metode garis lurus. Beban diakui pada periode terjadinya.`;
+
+V.calk = () => {
+  const notes = NT.map((t, i) => {
+    const n = i + 1, L = S.coa.map(a => [a[0], a[1], bal(a[0])]).filter(x => noteNo(x[0]) == n && Math.round(x[2]));
+    if (!L.length) return '';
+    return `<h4>${n}. ${t}</h4><table>${L.map(x => `<tr><td>${esc(x[1])}<td class="n">${R(x[2])}`).join('')}<tr style="font-weight:600"><td>Jumlah<td class="n" style="border-top:1px solid var(--ink)">${R(sum(L))}</table>`;
+  }).join('');
+  return `<div class="sheet doc"><h2>${esc(S.p.nama)}</h2><h3>Catatan atas Laporan Keuangan</h3><p class="sub">Untuk periode yang berakhir pada ${fdl(S.p.akhir)}</p>
+  <h4>A. Umum dan dasar penyusunan</h4><textarea oninput="S.p.k1=this.value;save()">${esc(S.p.k1 || kb1())}</textarea>
+  <h4>B. Ikhtisar kebijakan akuntansi</h4><textarea oninput="S.p.k2=this.value;save()">${esc(S.p.k2 || kb2())}</textarea>
+  <h4>C. Penjelasan pos-pos laporan keuangan</h4><p class="mute">Terbentuk otomatis dari saldo akun. Nomor catatan sesuai kolom Catatan pada laporan.</p><div class="note">${notes || '<p class="mute">Belum ada saldo untuk dijelaskan.</p>'}</div>${pr}`;
+};
+
+/* ===== Contoh data: Yazici Advertising (dari berkas Excel tugas) ===== */
+function demo() {
+  if (S.j.length && !confirm('Data saat ini akan diganti dengan contoh. Lanjutkan?')) return;
+  S = fresh();
+  Object.assign(S.p, {nama:'Yazici Advertising A.S', akhir:'2017-12-31'});
+  const J = (y, t, ket, ...l) => { const c = S.n[y] = (S.n[y] || 0) + 1; S.j.push({id:PRE[y] + '-' + String(c).padStart(3, '0'), t, ket, y, l}); };
+  J('JU', '2017-10-01', 'Setoran modal pemilik', [101,10000,0], [311,0,10000]);
+  J('JU', '2017-10-01', 'Beli peralatan dengan utang wesel', [157,5000,0], [200,0,5000]);
+  J('JU', '2017-10-02', 'Terima uang muka jasa iklan', [101,1200,0], [209,0,1200]);
+  J('JU', '2017-10-03', 'Bayar sewa', [729,900,0], [101,0,900]);
+  J('JU', '2017-10-04', 'Bayar premi asuransi', [130,600,0], [101,0,600]);
+  J('PUR', '2017-10-05', 'Beli perlengkapan secara kredit', [126,2500,0], [201,0,2500]);
+  J('JU', '2017-10-20', 'Pembagian dividen', [332,500,0], [101,0,500]);
+  J('JU', '2017-10-26', 'Bayar gaji', [726,4000,0], [101,0,4000]);
+  J('SAL', '2017-10-31', 'Pendapatan jasa iklan tunai', [101,10000,0], [400,0,10000]);
+  [[0,1500],[1,50],[3,40],[4,1200],[6,50],[7,400],[8,200]].forEach(([i, m]) => J('ADJ', '2017-12-31', ADJS[i][0], [ADJS[i][1], m, 0], [ADJS[i][2], 0, m]));
+  save(); go('lp');
+}
+
+render();
+</script>
+</body>
+</html>
